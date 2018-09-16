@@ -6,11 +6,14 @@ let tabUrl;
 let ourVideoPlayer;
 let skipAdBtn;
 let intervalPlayerFinder;
+let adClickerTimer;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.tabUrl !== tabUrl) {
     tabUrl = request.tabUrl;    
     if (!ourVideoPlayer) {
       findThePlayer();
+    } else {
+      fixTheGame();
     }
   }
 });
@@ -21,46 +24,47 @@ function findThePlayer() {
     if (intervalPlayerFinder) {
       clearInterval(intervalPlayerFinder);
     }
+    ourVideoPlayer.addEventListener('playing', fixTheGame);
+    ourVideoPlayer.addEventListener('play', fixTheGame);
     fixTheGame();
   } else {
-    intervalPlayerFinder = setInterval(() => {
-      findThePlayer();
-    }, 250);
+    if(!intervalPlayerFinder) {
+      console.log('starting timer to find the video player');
+      intervalPlayerFinder = setInterval(() => {
+        findThePlayer();
+      }, 250);
+    } else {
+      console.log('timer already running to find the videplayer');
+    }
   }
 }
 
 function fixTheGame() {
-  // try to see if btn already exists
-  skipAdBtn = document.querySelector('button.videoAdUiSkipButton');
-  if (skipAdBtn) {
-    console.log('Bhai ko ad mila hai!!!!');
-
-    let adClicker = setInterval(() => {
-      if (skipAdBtn.offsetParent !== null) {
-        skipAdBtn.click();
-        skipAdBtn = undefined;
-        console.log('Bhai Kamal kr dia aapne to!!!!');
-        clearInterval(adClicker);
-      }
-    }, 950);
-  } else {
-    // button not there yet
-    // maybe the video hasn't started?
-    // so...
-    ourVideoPlayer.addEventListener('playing', function (e) {
-      skipAdBtn = document.querySelector('button.videoAdUiSkipButton');
-      if (skipAdBtn) {
-        console.log('Bhai ko ad mila hai!!!!');
-
-        let adClicker = setInterval(() => {
-          if (skipAdBtn.offsetParent !== null) {
+  if(!skipAdBtn) {
+    skipAdBtn = document.querySelector('button.videoAdUiSkipButton');
+    if(skipAdBtn) {
+      console.log('button found. setting up timer for clicker');
+      // we found the button
+      if(!adClickerTimer) {
+        adClickerTimer = setInterval(() => {
+          if (skipAdBtn && skipAdBtn.offsetParent !== null) {
             skipAdBtn.click();
+            clearInterval(adClickerTimer);
+            adClickerTimer = undefined;
             skipAdBtn = undefined;
-            console.log('Bhai Kamal kr dia aapne to!!!!');
-            clearInterval(adClicker);
           }
         }, 950);
+      } else {
+        console.log('timer for clicker already exists');
       }
-    });
+      return true;    
+    } else {
+      console.log('button not found');
+      console.log('we will wait for the video player events to start the search');
+      return false;
+    }
+  } else {
+    console.log('button already found');
+    return true;
   }
 }
