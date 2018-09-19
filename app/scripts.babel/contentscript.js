@@ -8,7 +8,15 @@ let skipAdBtn;
 let intervalPlayerFinder;
 let adClickerTimer;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // check if this is a new page or what?
   if (request.tabUrl !== tabUrl) {
+    
+    // new navigation happened
+    // reset variables
+    skipAdBtn = undefined;
+    adClickerTimer = undefined;
+    intervalPlayerFinder = undefined;
+
     tabUrl = request.tabUrl;    
     if (!ourVideoPlayer) {
       findThePlayer();
@@ -48,7 +56,22 @@ function fixTheGame() {
       if(!adClickerTimer) {
         adClickerTimer = setInterval(() => {
           if (skipAdBtn && skipAdBtn.offsetParent !== null) {
+
+            // save this ad in temp list
+            let adTitle = '';
+            let adUrl = '';
+            if(document.querySelector('div.videoAdUiTitle')) {
+              adTitle = document.querySelector('div.videoAdUiTitle').textContent;
+            }
+            if(document.querySelector('a.ytp-title-link')) {
+              adUrl = document.querySelector('a.ytp-title-link').href;
+            }
+            if(adUrl) {
+              chrome.runtime.sendMessage({cmd: 'SAVE_AD', payload: { title: adTitle, adUrl: adUrl }});
+            }
+
             skipAdBtn.click();
+
             clearInterval(adClickerTimer);
             adClickerTimer = undefined;
             skipAdBtn = undefined;

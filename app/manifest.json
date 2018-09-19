@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -11,6 +11,7 @@
   "background": {
     "scripts": [
       "scripts/chromereload.js",
+      "scripts/cache.js",
       "scripts/background.js"
     ]
   },
@@ -28,5 +29,6 @@
       "run_at": "document_end",
       "all_frames": false
     }
-  ]
+  ],
+  "browser_action": {}
 }
