@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(details => {
   console.log('previousVersion', details.previousVersion);
 });
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if(changeInfo.status === 'complete' && tab.url.startsWith('https://www.youtube.com/watch')) {    
     chrome.tabs.sendMessage(tabId, { tabUrl: tab.url });
   }  
@@ -15,9 +15,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if(request.cmd == 'SAVE_AD') {
     cache.store(request.payload);
+  } else if (request.cmd == 'GET_ALL_ADS') {
+    sendResponse({ ads: cache.getAll() });
   }
 });
 
-chrome.browserAction.onClicked.addListener(() => {
-  console.log(cache.getAll());
+chrome.runtime.onSuspend.addListener(() => {
+  cache.persist();
 });

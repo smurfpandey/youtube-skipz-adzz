@@ -1,5 +1,11 @@
 function Cache(maxLength) {
   this.values = [];
+  
+  chrome.storage.local.get('ads', (data) => {
+    if(data.ads) {
+      this.values = data.ads;
+    }
+  });
 
   this.store = function(data) {
     if(this.values.length >= maxLength) {
@@ -14,5 +20,11 @@ function Cache(maxLength) {
 
   this.getAll = function() {
     return this.values;
+  }
+  
+  this.persist = function() {
+    if(this.values.length === 0)
+      return;
+    chrome.storage.local.set({ads: this.values});
   }
 }

@@ -58,7 +58,7 @@ function fixTheGame() {
           if (skipAdBtn && skipAdBtn.offsetParent !== null) {
 
             // save this ad in temp list
-            let adTitle = '';
+            let adTitle = '[title]';
             let adUrl = '';
             if(document.querySelector('div.videoAdUiTitle')) {
               adTitle = document.querySelector('div.videoAdUiTitle').textContent;
@@ -67,7 +67,8 @@ function fixTheGame() {
               adUrl = document.querySelector('a.ytp-title-link').href;
             }
             if(adUrl) {
-              chrome.runtime.sendMessage({cmd: 'SAVE_AD', payload: { title: adTitle, adUrl: adUrl }});
+              let skipTime = new Date().getTime() / 1000;
+              chrome.runtime.sendMessage({cmd: 'SAVE_AD', payload: { title: adTitle, url: adUrl, skipped_on: skipTime }});
             }
 
             skipAdBtn.click();
