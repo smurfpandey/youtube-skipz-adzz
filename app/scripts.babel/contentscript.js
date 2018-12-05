@@ -47,9 +47,12 @@ function findThePlayer() {
   }
 }
 
-function fixTheGame() {
+function fixTheGame(e) {
+  if(e) {
+    console.log('got video event: ' + e.type);
+  }
   if(!skipAdBtn) {
-    skipAdBtn = document.querySelector('button.videoAdUiSkipButton');
+    skipAdBtn = document.querySelector('button.ytp-ad-skip-button');
     if(skipAdBtn) {
       console.log('button found. setting up timer for clicker');
       // we found the button
